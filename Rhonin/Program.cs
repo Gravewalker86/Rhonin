@@ -14,11 +14,10 @@ namespace Rhonin
         static CommandsNextModule commands;
 
 
-        static string Authentication()
+        static string Authentication()//Method could be eliminated through the use of JSON config file.
         {
             string authenticationKey = null;
-            //string currentDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetAssembly(typeof(Program)).CodeBase); //could put: using System.Reflection
-            string keyName = "key.bin";
+            string keyName = "key.bin";//key stored in local file.
 
             if (!File.Exists(keyName))
             {
