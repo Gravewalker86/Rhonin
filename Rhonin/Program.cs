@@ -6,6 +6,8 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
+using Rhonin.RNG;
+
 namespace Rhonin
 {
     class Program
@@ -43,6 +45,11 @@ namespace Rhonin
 
         static void Main(string[] args)
         {
+            LookupDiceRoller Roller = new LookupDiceRoller();
+            Roller.Start();
+            Console.ReadKey();
+            return;
+
             MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//Async for maintaing server connection.
         }
 
