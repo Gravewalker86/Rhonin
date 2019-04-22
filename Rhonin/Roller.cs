@@ -12,8 +12,15 @@ namespace Rhonin.RNG
     {
         public void Start()
         {
+            LookupDie D4 = new LookupDie(4);
+            LookupDie D6 = new LookupDie(6);
+            LookupDie D8 = new LookupDie(8);
+            LookupDie D10 = new LookupDie(10);
+            LookupDie D12 = new LookupDie(12);
             LookupDie D20 = new LookupDie(20);
-            D20._dumpTable();
+            LookupDie D100 = new LookupDie(100);
+
+            D100._dumpTable();
         }
     }
 
@@ -21,7 +28,7 @@ namespace Rhonin.RNG
     {
 
         private int _sides = -1;
-        private int _iterations = 100;
+        private int _iterations = 5000;
         private List<int> _rollTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
