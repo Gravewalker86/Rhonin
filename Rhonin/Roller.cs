@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Rhonin.RNG
 {
+    using System.IO;
     using System.Security.Cryptography;//Limiting exposure to this namespace.
 
     public class LookupDiceRoller
@@ -16,7 +17,18 @@ namespace Rhonin.RNG
             LookupDie D12 = new LookupDie(12);
             LookupDie D20 = new LookupDie(20);
             LookupDie D100 = new LookupDie(100);
-            
+
+            StreamWriter sw = new StreamWriter(@"output.txt");
+            var timer = new Rhonin.Utilities.Timer();
+            timer.Start();
+            for (int i = 0; i < 1000000; i++)
+            {
+                sw.WriteLine($"{D20.Roll()},");
+            }
+            sw.Close();
+            timer.Stop();
+            Console.WriteLine(timer.TimeInMilisecondsToString());
+            Console.ReadKey();
         }
     }
 
@@ -71,10 +83,14 @@ namespace Rhonin.RNG
         public int Roll()
         {
             Array.Clear(_cryptoBuffer, 0, 4);
-            _crypto.GetBytes(_cryptoBuffer);
-            _rng = BitConverter.ToUInt32(_cryptoBuffer);
-
-            return 0;
+            _rng = 0;
+            do
+            {
+                _crypto.GetBytes(_cryptoBuffer);
+                _rng = BitConverter.ToUInt32(_cryptoBuffer);
+            }
+            while (_rng > _maxRoll);
+            return _lookupTable[(int)(_rng % _lookupTable.Count)];
         }
     }
 }
