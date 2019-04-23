@@ -15,7 +15,8 @@ namespace Rhonin.RNG
             LookupDie D10 = new LookupDie(10);
             LookupDie D12 = new LookupDie(12);
             LookupDie D20 = new LookupDie(20);
-            LookupDie D100 = new LookupDie(100);        
+            LookupDie D100 = new LookupDie(100);
+            
         }
     }
 
@@ -25,14 +26,17 @@ namespace Rhonin.RNG
         private int _sides = -1;
         private int _iterations = 5000;//move iterations to roller class
         private UInt32 _rng = 0;
-        private byte[] _cryptBuffer = new byte[4];
+        private byte[] _cryptoBuffer = new byte[4];//hardcoded 4bytes of entropy
         private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
 
+        private UInt64 _maxRoll = 0;
+
         public LookupDie(int inputSides)
         {
             _sides = inputSides;
+            _maxRoll = (((UInt64)(_iterations * _sides)) / 4294967295ul) * (UInt64)(_iterations * _sides);//Max value to accept;
             _generateTable();
         }
 
@@ -66,6 +70,9 @@ namespace Rhonin.RNG
 
         public int Roll()
         {
+            Array.Clear(_cryptoBuffer, 0, 4);
+            _crypto.GetBytes(_cryptoBuffer);
+            _rng = BitConverter.ToUInt32(_cryptoBuffer);
 
             return 0;
         }
