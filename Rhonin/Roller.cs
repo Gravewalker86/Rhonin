@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Rhonin.RNG
 {
@@ -24,8 +23,10 @@ namespace Rhonin.RNG
     {
 
         private int _sides = -1;
-        private int _iterations = 5000;
-        private List<int> _rollTable = new List<int>();
+        private int _iterations = 5000;//move iterations to roller class
+        private UInt32 _rng = 0;
+        private byte[] _cryptBuffer = new byte[4];
+        private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
 
@@ -44,15 +45,29 @@ namespace Rhonin.RNG
                     byte[] _guid = new byte[16];
                     _crypto.GetBytes(_guid);
                     _sortTable.Add(new Guid(_guid), x);
+                    Array.Clear(_guid, 0, 16);//Clear array after each pass, may not be nessessary
                 }
             }
 
             foreach(var entry in _sortTable) //converting sorted dictionary to list for faster lookup.
             {
-                _rollTable.Add(entry.Value);
+                _lookupTable.Add(entry.Value);
             }
-
             _sortTable.Clear(); //clearing sorted dictionary for GC.
+            _lookupTable.TrimExcess();//cleanup
+        }
+
+        public void Reinitialize()//used to regenerate the die.
+        {
+            _sortTable.Clear();
+            _lookupTable.Clear();
+            _generateTable();
+        }
+
+        public int Roll()
+        {
+
+            return 0;
         }
     }
 }
