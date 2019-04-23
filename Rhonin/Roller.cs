@@ -25,18 +25,18 @@ namespace Rhonin.RNG
 
         private int _sides = -1;
         private int _iterations = 5000;//move iterations to roller class
-        private UInt32 _rng = 0;
+        private long _rng = 0;
         private byte[] _cryptoBuffer = new byte[4];//hardcoded 4bytes of entropy
         private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
 
-        private UInt64 _maxRoll = 0;
+        private long _maxRoll = 0;
 
         public LookupDie(int inputSides)
         {
             _sides = inputSides;
-            _maxRoll = (((UInt64)(_iterations * _sides)) / 4294967295ul) * (UInt64)(_iterations * _sides);//Max value to accept;
+            _maxRoll = (4294967295L / (_iterations * _sides)) * (_iterations * _sides);//Hardcoded for 4 bytes
             _generateTable();
         }
 
