@@ -45,11 +45,6 @@ namespace Rhonin
 
         static void Main(string[] args)
         {
-            LookupDiceRoller Roller = new LookupDiceRoller();
-            Roller.Start();
-            Console.ReadKey();
-            return;
-
             MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//Async for maintaing server connection.
         }
 
@@ -62,12 +57,6 @@ namespace Rhonin
                 UseInternalLogHandler = true,
                 LogLevel = LogLevel.Debug
             });
-
-            discord.MessageCreated += async e =>
-            {
-                if (e.Message.Content.ToLower().StartsWith("!test"))
-                    await e.Message.RespondAsync("I AM ALIVE!");
-            };
 
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
             {

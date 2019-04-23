@@ -8,7 +8,7 @@ namespace Rhonin.RNG
 
     public class LookupDiceRoller
     {
-        public void Start()
+        public LookupDiceRoller()
         {
             LookupDie D4 = new LookupDie(4);
             LookupDie D6 = new LookupDie(6);
@@ -17,18 +17,6 @@ namespace Rhonin.RNG
             LookupDie D12 = new LookupDie(12);
             LookupDie D20 = new LookupDie(20);
             LookupDie D100 = new LookupDie(100);
-
-            StreamWriter sw = new StreamWriter(@"output.txt");
-            var timer = new Rhonin.Utilities.Timer();
-            timer.Start();
-            for (int i = 0; i < 1000000; i++)
-            {
-                sw.WriteLine($"{D20.Roll()},");
-            }
-            sw.Close();
-            timer.Stop();
-            Console.WriteLine(timer.TimeInMilisecondsToString());
-            Console.ReadKey();
         }
     }
 
