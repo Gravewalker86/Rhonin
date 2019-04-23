@@ -6,26 +6,17 @@ namespace Rhonin.RNG
 {
     using System.Security.Cryptography;//Limiting exposure to this namespace.
 
-    class LookupDiceRoller
+    public class LookupDiceRoller
     {
         public void Start()
         {
-            var timer = new System.Diagnostics.Stopwatch();
-            timer.Start();
-
             LookupDie D4 = new LookupDie(4);
             LookupDie D6 = new LookupDie(6);
             LookupDie D8 = new LookupDie(8);
             LookupDie D10 = new LookupDie(10);
             LookupDie D12 = new LookupDie(12);
             LookupDie D20 = new LookupDie(20);
-            LookupDie D100 = new LookupDie(100);
-            timer.Stop();
-
-            D20._dumpTable();
-            Console.WriteLine($"Tables generated in: {timer.Elapsed.TotalMilliseconds} Milliseconds.");
-
-            
+            LookupDie D100 = new LookupDie(100);        
         }
     }
 
@@ -62,14 +53,6 @@ namespace Rhonin.RNG
             }
 
             _sortTable.Clear(); //clearing sorted dictionary for GC.
-        }
-
-        public void _dumpTable()
-        {
-            foreach(var entry in _rollTable)
-            {
-                Console.WriteLine($"Value: {entry}");
-            }
         }
     }
 }
