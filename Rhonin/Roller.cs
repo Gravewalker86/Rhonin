@@ -4,9 +4,7 @@ using System.Text;
 
 namespace Rhonin.RNG
 {
-    using System.Security.Cryptography;//Limiting exposure.
-
-    //private const double MACHINE_EPSILION = 0.000000000000001d; //needed for floor function to work in 0 < rand < 1 based RNG.
+    using System.Security.Cryptography;//Limiting exposure to this namespace.
 
     class LookupDiceRoller
     {
