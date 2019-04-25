@@ -57,6 +57,7 @@ namespace Rhonin
             if(numberOfDice > 500)
             {
                 await ctx.RespondAsync($"Let's try to keep it under 500 dice at a time {ctx.User.Mention}");
+                return;
             }
 
             currentRoll = DiceRoller.Roll(dieSize);
@@ -82,6 +83,8 @@ namespace Rhonin
             {
                 await ctx.RespondAsync($"Roll less dice! {ctx.User.Mention}");
             }
+
+            await ctx.RespondAsync(outputString);
             
             /* Fix segmentation
             
