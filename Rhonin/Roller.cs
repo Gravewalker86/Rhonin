@@ -78,7 +78,7 @@ namespace Rhonin.RNG
         public LookupDie(int inputSides)
         {
             _sides = inputSides;
-            _maxRoll = (4294967295L / (_iterations * _sides)) * (_iterations * _sides);//Hardcoded for 4 bytes
+            _maxRoll = (4294967295UL / (uint)(_iterations * _sides)) * (uint)(_iterations * _sides);//Hardcoded for 4 bytes //inaccurate value due to being signed.
             _generateTable();
         }
 
@@ -109,6 +109,7 @@ namespace Rhonin.RNG
             _lookupTable.Clear();
             _generateTable();
         }
+
 
         public void ResetIterations(int _newIterations)//sets iterations and reinializes die
         {
