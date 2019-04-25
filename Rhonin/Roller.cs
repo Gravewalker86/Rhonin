@@ -3,11 +3,18 @@ using System.Collections.Generic;
 
 namespace Rhonin.RNG
 {
-    using System.IO;
     using System.Security.Cryptography;//Limiting exposure to this namespace.
 
     public class LookupDiceRoller
     {
+        LookupDie D4;
+        LookupDie D6;
+        LookupDie D8;
+        LookupDie D10;
+        LookupDie D12;
+        LookupDie D20;
+        LookupDie D100;
+
         public LookupDiceRoller()
         {
             LookupDie D4 = new LookupDie(4);
@@ -18,6 +25,41 @@ namespace Rhonin.RNG
             LookupDie D20 = new LookupDie(20);
             LookupDie D100 = new LookupDie(100);
         }
+
+        void SetIterations(int iterations)//reinitializes all dice with the new number of iterations.
+        {
+            D4.ResetIterations(iterations);
+            D6.ResetIterations(iterations);
+            D8.ResetIterations(iterations);
+            D10.ResetIterations(iterations);
+            D12.ResetIterations(iterations);
+            D20.ResetIterations(iterations);
+            D100.ResetIterations(iterations);
+        }
+
+        public int Roll(int ds)
+        {
+            switch (ds)
+            {
+                case 4:
+                    return D4.Roll();
+                case 6:
+                    return D6.Roll();
+                case 8:
+                    return D8.Roll();
+                case 10:
+                    return D10.Roll();
+                case 12:
+                    return D12.Roll();
+                case 20:
+                    return D20.Roll();
+                case 100:
+                    return D100.Roll();
+
+            }
+            return -1;//invalid die size
+        }
+
     }
 
     public class LookupDie
@@ -66,6 +108,12 @@ namespace Rhonin.RNG
             _sortTable.Clear();
             _lookupTable.Clear();
             _generateTable();
+        }
+
+        public void ResetIterations(int _newIterations)//sets iterations and reinializes die
+        {
+            _iterations = _newIterations;
+            Reinitialize();
         }
 
         public int Roll()
