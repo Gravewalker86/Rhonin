@@ -67,18 +67,20 @@ namespace Rhonin.RNG
 
         private int _sides = -1;
         private int _iterations = 5000;//move iterations to roller class
-        private long _rng = 0;
+        private ulong _rng = 0;
+        private ulong _maxRoll = 0; //used for reducing roll-bias by ensuring equal coverage of the roll table by eliminating the incomplete set at the top of the range.
+        private const ulong _MAXVALUE = 4294967295UL; //max 32bit Value, Used for calculating maxRoll which is used to reduce roll bias. This is hardcoded for 4 bytes.
         private byte[] _cryptoBuffer = new byte[4];//hardcoded 4bytes of entropy
         private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
 
-        private long _maxRoll = 0;
+        
 
         public LookupDie(int inputSides)
         {
             _sides = inputSides;
-            _maxRoll = (4294967295UL / (uint)(_iterations * _sides)) * (uint)(_iterations * _sides);//Hardcoded for 4 bytes //inaccurate value due to being signed.
+            _setMaxRoll();
             _generateTable();
         }
 
@@ -107,7 +109,14 @@ namespace Rhonin.RNG
         {
             _sortTable.Clear();
             _lookupTable.Clear();
+            _setMaxRoll();
             _generateTable();
+        }
+
+        private void _setMaxRoll()
+        {
+            ulong _maxCount = (uint)(_iterations * _sides);
+            _maxRoll = (_MAXVALUE / _maxCount) * _maxCount;//Hardcoded for 4 bytes
         }
 
 
@@ -119,15 +128,26 @@ namespace Rhonin.RNG
 
         public int Roll()
         {
+            int _lookupKey = -1;
             Array.Clear(_cryptoBuffer, 0, 4);
             _rng = 0;
             do
             {
                 _crypto.GetBytes(_cryptoBuffer);
-                _rng = BitConverter.ToUInt32(_cryptoBuffer);
+                _rng = BitConverter.ToUInt32(_cryptoBuffer);//using ToUint32 to ensure the proper 4 bytes are set.
             }
             while (_rng > _maxRoll);
-            return _lookupTable[(int)(_rng % _lookupTable.Count)];
+
+            _lookupKey = (int)(_rng % (ulong)_lookupTable.Count);
+
+            if (_lookupKey >= 0 && _lookupKey < _lookupTable.Count)
+            {
+                return _lookupTable[_lookupKey];
+            }
+            else
+            {
+                throw new Exception("Invalid Lookup Key!");
+            }
         }
     }
 }
