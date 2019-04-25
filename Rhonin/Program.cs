@@ -43,12 +43,7 @@ namespace Rhonin
             return authenticationKey;
         }
 
-        static void Main(string[] args)
-        {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//Async for maintaing server connection.
-        }
-
-        static async Task MainAsync(string[] args)//Main Program Loop
+        static void BotInitialization()//Used to store DSharpPlus Boilerplate.
         {
             discord = new DiscordClient(new DiscordConfiguration
             {
@@ -60,42 +55,34 @@ namespace Rhonin
 
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefix = ";;"
+                StringPrefix = ";;",
+                CaseSensitive = false,
+                EnableDms = false,
+                EnableDefaultHelp = false
             });
 
             commands.RegisterCommands<MyCommands>();
+        }
+
+        static void RhoninInitialization()
+        {
+            Rhonin.RNG.LookupDiceRoller DiceRoller = new LookupDiceRoller();
+        }
+
+
+
+        static void Main(string[] args)
+        {
+            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//Async for maintaing server connection.
+        }
+
+        static async Task MainAsync(string[] args)//Main Program Loop
+        {
+            BotInitialization(); //Boilerplate.
+            RhoninInitialization(); //actual initialization.
 
             await discord.ConnectAsync();
             await Task.Delay(-1);
-        }
-
-    }
-
-    public class MyCommands
-    {
-        [Command("Testing")]
-        public async Task Testing(CommandContext ctx)
-        {
-            await ctx.RespondAsync($"Reading you loud and clear {ctx.User.Mention}!");
-        }
-
-        [Command("roll"), Aliases("Roll", "ROLL")]
-        public async Task Roll(CommandContext ctx, int numDie, int dieSize)
-        {
-            var rnd = new Random();
-            List<int> diceRolled = new List<int>();
-            int totalRolled = 0;
-
-            for (int i = 0; i < numDie; i++)
-            {
-                diceRolled.Add(rnd.Next(1, dieSize));
-            }
-
-            foreach (int roll in diceRolled)
-            {
-                totalRolled += roll;
-            }
-            await ctx.RespondAsync($"{ctx.User.Mention} rolled: [{string.Join(", ", diceRolled)}] = {totalRolled}");
         }
 
     }
