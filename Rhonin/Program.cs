@@ -15,6 +15,8 @@ namespace Rhonin
         static DiscordClient discord;
         static CommandsNextModule commands;
 
+        //static public Rhonin.RNG.LookupDiceRoller DiceRoller;
+
 
         static string Authentication()//Method could be eliminated through the use of JSON config file.
         {
@@ -66,7 +68,7 @@ namespace Rhonin
 
         static void RhoninInitialization()
         {
-            Rhonin.RNG.LookupDiceRoller DiceRoller = new LookupDiceRoller();
+            //DiceRoller = new LookupDiceRoller();
         }
 
 
@@ -79,7 +81,7 @@ namespace Rhonin
         static async Task MainAsync(string[] args)//Main Program Loop
         {
             BotInitialization(); //Boilerplate.
-            RhoninInitialization(); //actual initialization.
+            //RhoninInitialization(); //actual initialization.
 
             await discord.ConnectAsync();
             await Task.Delay(-1);

@@ -14,16 +14,18 @@ namespace Rhonin.RNG
         LookupDie D12;
         LookupDie D20;
         LookupDie D100;
+        LookupDie D1000;
 
         public LookupDiceRoller()
         {
-            LookupDie D4 = new LookupDie(4);
-            LookupDie D6 = new LookupDie(6);
-            LookupDie D8 = new LookupDie(8);
-            LookupDie D10 = new LookupDie(10);
-            LookupDie D12 = new LookupDie(12);
-            LookupDie D20 = new LookupDie(20);
-            LookupDie D100 = new LookupDie(100);
+            D4 = new LookupDie(4);
+            D6 = new LookupDie(6);
+            D8 = new LookupDie(8);
+            D10 = new LookupDie(10);
+            D12 = new LookupDie(12);
+            D20 = new LookupDie(20);
+            D100 = new LookupDie(100);
+            D1000 = new LookupDie(1000);
         }
 
         void SetIterations(int iterations)//reinitializes all dice with the new number of iterations.
@@ -35,6 +37,7 @@ namespace Rhonin.RNG
             D12.ResetIterations(iterations);
             D20.ResetIterations(iterations);
             D100.ResetIterations(iterations);
+            D1000.ResetIterations(iterations);
         }
 
         public int Roll(int ds)
@@ -55,6 +58,8 @@ namespace Rhonin.RNG
                     return D20.Roll();
                 case 100:
                     return D100.Roll();
+                case 1000:
+                    return D1000.Roll();
 
             }
             return -1;//invalid die size
@@ -66,7 +71,7 @@ namespace Rhonin.RNG
     {
 
         private int _sides = -1;
-        private int _iterations = 5000;//move iterations to roller class
+        private int _iterations = 500;//move iterations to roller class
         private ulong _rng = 0;
         private ulong _maxRoll = 0; //used for reducing roll-bias by ensuring equal coverage of the roll table by eliminating the incomplete set at the top of the range.
         private const ulong _MAXVALUE = 4294967295UL; //max 32bit Value, Used for calculating maxRoll which is used to reduce roll bias. This is hardcoded for 4 bytes.
