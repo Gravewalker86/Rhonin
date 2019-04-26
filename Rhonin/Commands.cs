@@ -27,6 +27,9 @@ namespace Rhonin
         public async Task Testing(CommandContext ctx)
         {
             await ctx.TriggerTypingAsync();//send client typing to discord.
+            const string SANITIZE = @"[A-CE-Za-ce-z\W]";
+            const string VALIDATION = @"(d+[Dd]\d+";
+            const string PARSE = @"(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+)(?<MODIFIER>[+-]\d)*";
 
             int currentRoll = 0;
             int numberOfDice = 0;
@@ -46,7 +49,7 @@ namespace Rhonin
                 return;
             }
 
-            Regex regex = new Regex(@"(\d+)[Dd](\d+)([+-]\d)*");
+            Regex regex = new Regex(@"(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+)(?<MODIFIER>[+-]\d)*");
             MatchCollection matches = regex.Matches(inputString);
 
             foreach(Match match in matches)
