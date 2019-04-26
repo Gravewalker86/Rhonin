@@ -13,10 +13,15 @@ using Rhonin.RNG;
  * Ask Gahder for help cleaning up the regex.
  */
 
+/*
+ * Move error strings into enum.
+ */
+
 namespace Rhonin
 {
     public class MyCommands
     {
+        static SimpleDiceRoller DiceRoller = new SimpleDiceRoller();
 
         [Command("Testing"), Aliases("test","Test","testing","TEST","TESTING")]
         public async Task Testing(CommandContext ctx)
@@ -28,32 +33,34 @@ namespace Rhonin
         public async Task Roll(CommandContext ctx, string command)
         {
             await ctx.TriggerTypingAsync();//send client typing to discord.
+
+            int currentRoll = 0;
+            int numberOfDice = 0;
+            int dieSize = 0;
+            int totalRoll = 0;
+
             string inputString = ctx.RawArgumentString;
             List<int> rolls = new List<int>();
 
-            inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//stripps excess
+            inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//sanitizes formatting
             Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+)");//checks formatting
 
             if (!regexMatch.Success)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention}: Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
-                return;//Not sure if this is proper usage.
-            }
-
-            regexMatch = Regex.Match(inputString, @"(\d+)[Dd](\d+)");
-            numberOfDice = Convert.ToInt32(regexMatch.Groups[1].Value);
-            dieSize = Convert.ToInt32(regexMatch.Groups[2].Value);
-
-            if(numberOfDice > 500)
-            {
-                await ctx.RespondAsync($"Let's try to keep it under 500 dice at a time {ctx.User.Mention}");
+                await ctx.RespondAsync($"{ctx.User.Mention}: "+
+                    "Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
                 return;
             }
+
+            regexMatch = Regex.Match(inputString, @"(\d+)[Dd]+(\d+)");
+            numberOfDice = Convert.ToInt32(regexMatch.Groups[1].Value);
+            dieSize = Convert.ToInt32(regexMatch.Groups[2].Value);
 
             currentRoll = DiceRoller.Roll(dieSize);
             if (currentRoll == -1)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention}, Please enter a valid die size! Valid sizes are: D4, D6, D8, D10, D12, D20, D100 and, D1000");
+                await ctx.RespondAsync($"{ctx.User.Mention}, Please enter a valid die size!"+
+                    $"Valid sizes are D2 through D{DiceRoller.GetMax()}.");
                 return;
             }
 
@@ -67,63 +74,30 @@ namespace Rhonin
                 totalRoll += currentRoll;
             }
 
-            string outputString = new string($"{ctx.User.Username} Rolled {numberOfDice}D{dieSize} :[{string.Join(", ",rolls)}] = {totalRoll}");
+            string outputString = new string($"{ctx.User.Username} Rolled {numberOfDice}D{dieSize} :["+
+                $"{string.Join(", ", rolls)}] = {totalRoll}");
 
-            if(outputString.Length > 1990)
-            {
-                await ctx.RespondAsync($"Roll less dice! {ctx.User.Mention}");
-            }
-
-            await ctx.RespondAsync(outputString);
-            
-            /* Fix segmentation
-            
-            if(outputString.Length > 1990)
-            {
-                int i = 0;
-                string outputSegment = null;
-
-                for (i = 0; i < outputString.Length / 1990; i++)
-                {
-                    outputSegment = (outputString.Substring(i * 1990, 1990));
-                    await ctx.RespondAsync(outputSegment);
-                    Thread.Sleep(1000);
-                }
-
-                if ((outputString.Length % 1990) != 0)
-                {
-                    outputSegment = (outputString.Substring(i));
-                    await ctx.RespondAsync(outputSegment);
-                    Thread.Sleep(1000);
-                }
-                
-            }
-            else
+            if (outputString.Length <= 1990)
             {
                 await ctx.RespondAsync(outputString);
             }
-            
-             */
-        }
-
-        [Command("roll2"), Aliases("Rollz", "ROLLz")]
-        public async Task Roll2(CommandContext ctx, int numDie, int dieSize)
-        {
-            var rnd = new Random();
-            List<int> diceRolled = new List<int>();
-            int totalRolled = 0;
-
-            for (int i = 0; i < numDie; i++)
+            else
             {
-                diceRolled.Add(rnd.Next(1, dieSize));
+                string stringBuffer = null;
+                for (int i = 0; i < outputString.Length; i++)
+                {
+                    stringBuffer += outputString[i];
+                    if((i % 1900 == 0) && i > 0)
+                    {
+                        await ctx.RespondAsync(stringBuffer);
+                        stringBuffer = null;
+                    }
+                }
+                if(stringBuffer.Length > 0)
+                {
+                    await ctx.RespondAsync(stringBuffer);
+                }
             }
-
-            foreach (int roll in diceRolled)
-            {
-                totalRolled += roll;
-            }
-            await ctx.RespondAsync($"{ctx.User.Mention} rolled: [{string.Join(", ", diceRolled)}] = {totalRolled}");
         }
-
     }
 }
