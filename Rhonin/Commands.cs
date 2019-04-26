@@ -38,12 +38,15 @@ namespace Rhonin
             int numberOfDice = 0;
             int dieSize = 0;
             int totalRoll = 0;
+            int mod = 0;
 
             string inputString = ctx.RawArgumentString;
             List<int> rolls = new List<int>();
 
             inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//sanitizes formatting
             Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+)");//checks formatting
+            // 15d4+10 2d8 
+            //Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+\+*\d*)");
 
             if (!regexMatch.Success)
             {
@@ -52,10 +55,27 @@ namespace Rhonin
                 return;
             }
 
-            regexMatch = Regex.Match(inputString, @"(\d+)[Dd]+(\d+)");
+            //this line should be unnessecary as you just did a match on line 47
+            //regexMatch = Regex.Match(inputString, @"(\d+)[Dd]+(\d+)");
             numberOfDice = Convert.ToInt32(regexMatch.Groups[1].Value);
             dieSize = Convert.ToInt32(regexMatch.Groups[2].Value);
 
+            if (inputString.Contains("+"))
+            {
+                totalRoll = Convert.ToInt32(regexMatch.Groups[3].Value);
+                mod = totalRoll;
+            }
+ 
+
+
+            //if (dieSize < 2 || dieSize > DiceRoller.GetMax())
+            //{
+            //    await ctx.RespondAsync($"{ctx.User.Mention}, Please enter a valid die size!" +
+            //        $"Valid sizes are D2 through D{DiceRoller.GetMax()}.");
+            //    return;
+            //}
+
+            //using the above if block will allow you to not need to call DiceRoller.Roll twice, and begin the loop at 0
             currentRoll = DiceRoller.Roll(dieSize);
             if (currentRoll == -1)
             {
@@ -74,8 +94,9 @@ namespace Rhonin
                 totalRoll += currentRoll;
             }
 
+            //modified the output string to contain the modifier text
             string outputString = new string($"{ctx.User.Username} Rolled {numberOfDice}D{dieSize} :["+
-                $"{string.Join(", ", rolls)}] = {totalRoll}");
+                $"{string.Join(", ", rolls)}] + " + mod + "= {totalRoll}");
 
             if (outputString.Length <= 1990)
             {

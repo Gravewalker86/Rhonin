@@ -68,9 +68,7 @@ namespace Rhonin.RNG
         public int Roll(int size)
         {
             if(size < 2 && size > 10000)
-            {
-                return -1;
-            } //input validation.
+                return -1; //input validation.
 
             BigInteger _roll;
 
