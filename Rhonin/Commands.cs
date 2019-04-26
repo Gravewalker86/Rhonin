@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Interactivity;
 
 using Rhonin.RNG;
-using System.Threading;
 
 /*
  * Should potentially move all regex functionality and error checking to it's own method / class
@@ -21,91 +17,22 @@ namespace Rhonin
 {
     public class MyCommands
     {
-        LookupDiceRoller DiceRoller = new LookupDiceRoller();
 
-        [Command("Testing")]
+        [Command("Testing"), Aliases("test","Test","testing","TEST","TESTING")]
         public async Task Testing(CommandContext ctx)
         {
             await ctx.RespondAsync($"Reading you loud and clear {ctx.User.Mention}!");
         }
 
-        //Carbon copy of roll using sorted lists. TEMPORARY SOLUTION FOR IMMEDIATE USE!
-        [Command("sortedroll"), Aliases("SortedRoll", "SORTEDROLL", "SR", "sr")]
-        public async Task SortedRoll(CommandContext ctx, string command)
-        {
-            await ctx.TriggerTypingAsync();//send client typing to discord.
-
-            int currentRoll = -1;
-            int totalRoll = 0;
-            int dieSize = 20;
-            int numberOfDice = 1;
-            string inputString = ctx.RawArgumentString;
-            List<int> rolls = new List<int>();
-
-            inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//stripps excess
-            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]\d+)");//checks formatting
-
-            if (!regexMatch.Success)
-            {
-                await ctx.RespondAsync($"{ctx.User.Mention}: Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
-                return;//Not sure if this is proper usage.
-            }
-
-            regexMatch = Regex.Match(inputString, @"(\d+)[Dd](\d+)");
-            numberOfDice = Convert.ToInt32(regexMatch.Groups[1].Value);
-            dieSize = Convert.ToInt32(regexMatch.Groups[2].Value);
-
-            if (numberOfDice > 500)
-            {
-                await ctx.RespondAsync($"Let's try to keep it under 500 dice at a time {ctx.User.Mention}");
-                return;
-            }
-
-            currentRoll = DiceRoller.Roll(dieSize);
-            if (currentRoll == -1)
-            {
-                await ctx.RespondAsync($"{ctx.User.Mention}, Please enter a valid die size! Valid sizes are: D4, D6, D8, D10, D12, D20, D100 and, D1000");
-                return;
-            }
-
-            rolls.Add(currentRoll);
-            totalRoll += currentRoll;
-
-            for (int i = 1; i < numberOfDice; i++)
-            {
-                currentRoll = DiceRoller.Roll(dieSize);
-                rolls.Add(currentRoll);
-                totalRoll += currentRoll;
-            }
-
-
-            rolls.Sort();//only difference between this and roll
-            rolls.Reverse();//only other difference.
-            string outputString = new string($"{ctx.User.Username} Rolled {numberOfDice}D{dieSize} :[{string.Join(", ", rolls)}] = {totalRoll}");
-
-            if (outputString.Length > 1990)
-            {
-                await ctx.RespondAsync($"Roll less dice! {ctx.User.Mention}");
-            }
-
-            await ctx.RespondAsync(outputString);
-        }
-
-
         [Command("roll"), Aliases("Roll", "ROLL", "R", "r")]
         public async Task Roll(CommandContext ctx, string command)
         {
             await ctx.TriggerTypingAsync();//send client typing to discord.
-
-            int currentRoll = -1;
-            int totalRoll = 0;
-            int dieSize = 20;
-            int numberOfDice = 1;
             string inputString = ctx.RawArgumentString;
             List<int> rolls = new List<int>();
 
             inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//stripps excess
-            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]\d+)");//checks formatting
+            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+)");//checks formatting
 
             if (!regexMatch.Success)
             {

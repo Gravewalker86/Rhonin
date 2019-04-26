@@ -1,10 +1,92 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Numerics;
 
 namespace Rhonin.RNG
 {
     using System.Security.Cryptography;//Limiting exposure to this namespace.
+    public class SimpleDiceRoller
+    {
+        private const int _DEFAULT_SIZE = 4;//default bytes of entropy
+        private const int _MAX_SIZE = 10000; //max die size.
 
+        private int _bytesOfEntrophy = _DEFAULT_SIZE;
+        private int _previousDieSize = 0;
+        private byte[] _byteArray = null;
+        private BigInteger _maxRoll = 0;
+        private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
+
+        SimpleDiceRoller()
+        {
+            SetEntrophy(_DEFAULT_SIZE);
+        }
+
+        SimpleDiceRoller(int bytes)
+        {
+            SetEntrophy(bytes);
+        }
+
+        public int GetEntrophy()
+        {
+            return _bytesOfEntrophy;
+        }
+
+        public void SetEntrophy(int bytes)
+        {
+            if (bytes > 0 && bytes <= 4096)
+            {
+                _bytesOfEntrophy = bytes;
+            }
+            else
+            {
+                _bytesOfEntrophy = _DEFAULT_SIZE;
+            }
+            Array.Resize(ref _byteArray, _bytesOfEntrophy + 1);//extra byte used to ensure positive BigInts.
+            _previousDieSize = -1;
+            //eliminates the need to store and check for _bytesOfEntrophy changes between rolls.
+        }
+
+        private void _calcMaxRoll(int size)//generates max roll to accept.
+        {
+            byte[] _maxArray = new byte[_bytesOfEntrophy + 1];
+
+            for (int i = 0; i < _maxArray.Length; i++)//fills all but last byte with 0xFF.
+            {
+                _maxArray[i] = 0xFF;
+            }
+
+            _maxArray[_maxArray.GetUpperBound(0)] = 0x00;//forces positive result.
+            _maxRoll = new BigInteger(_maxArray);
+            _maxRoll -= (_maxRoll % size);//eliminates non-full period.            
+        }
+
+        public int Roll(int size)
+        {
+            if(size < 2 && size > 10000)
+            {
+                return -1;
+            } //input validation.
+
+            BigInteger _roll;
+
+            if (size != _previousDieSize)
+            {
+                _calcMaxRoll(size);
+            }
+
+            do
+            {
+                _crypto.GetBytes(_byteArray);
+                _byteArray[_byteArray.GetUpperBound(0)] = 0x00;//forces positive BigInt.
+                _roll = new BigInteger(_byteArray);
+            }
+            while (_roll > _maxRoll);
+
+            _previousDieSize = size;
+            return ((int)(_roll % size));
+        }
+    }
+    
+    /*
     public class LookupDiceRoller
     {
         LookupDie D4;
@@ -73,8 +155,12 @@ namespace Rhonin.RNG
         private int _sides = -1;
         private int _iterations = 500;//move iterations to roller class
         private ulong _rng = 0;
-        private ulong _maxRoll = 0; //used for reducing roll-bias by ensuring equal coverage of the roll table by eliminating the incomplete set at the top of the range.
-        private const ulong _MAXVALUE = 4294967295UL; //max 32bit Value, Used for calculating maxRoll which is used to reduce roll bias. This is hardcoded for 4 bytes.
+        private ulong _maxRoll = 0;
+        //used for reducing roll-bias by ensuring equal coverage of the roll table by eliminating the 
+        //  incomplete set at the top of the range.
+        private const ulong _MAXVALUE = 4294967295UL; 
+        //max 32bit Value, Used for calculating maxRoll which is used to reduce roll bias. 
+        //  This is hardcoded for 4 bytes.
         private byte[] _cryptoBuffer = new byte[4];//hardcoded 4bytes of entropy
         private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
@@ -155,4 +241,5 @@ namespace Rhonin.RNG
             }
         }
     }
+    */
 }

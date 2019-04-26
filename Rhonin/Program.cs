@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 
-using Rhonin.RNG;
 
 namespace Rhonin
 {
@@ -14,9 +11,6 @@ namespace Rhonin
     {
         static DiscordClient discord;
         static CommandsNextModule commands;
-
-        //static public Rhonin.RNG.LookupDiceRoller DiceRoller;
-
 
         static string Authentication()//Method could be eliminated through the use of JSON config file.
         {
@@ -63,28 +57,19 @@ namespace Rhonin
                 EnableDefaultHelp = false
             });
 
-            commands.RegisterCommands<MyCommands>();
+            commands.RegisterCommands<MyCommands>();//registers command object MyCommands
         }
-
-        static void RhoninInitialization()
-        {
-            //DiceRoller = new LookupDiceRoller();
-        }
-
-
 
         static void Main(string[] args)
         {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//Async for maintaing server connection.
+            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//starts async task for maintaining the bot.
         }
 
         static async Task MainAsync(string[] args)//Main Program Loop
         {
             BotInitialization(); //Boilerplate.
-            //RhoninInitialization(); //actual initialization.
-
             await discord.ConnectAsync();
-            await Task.Delay(-1);
+            await Task.Delay(-1);//Keeps bot alive.
         }
 
     }
