@@ -3,40 +3,89 @@ using System.Collections.Generic;
 
 namespace Rhonin.RNG
 {
-    using System.IO;
     using System.Security.Cryptography;//Limiting exposure to this namespace.
 
     public class LookupDiceRoller
     {
+        LookupDie D4;
+        LookupDie D6;
+        LookupDie D8;
+        LookupDie D10;
+        LookupDie D12;
+        LookupDie D20;
+        LookupDie D100;
+        LookupDie D1000;
+
         public LookupDiceRoller()
         {
-            LookupDie D4 = new LookupDie(4);
-            LookupDie D6 = new LookupDie(6);
-            LookupDie D8 = new LookupDie(8);
-            LookupDie D10 = new LookupDie(10);
-            LookupDie D12 = new LookupDie(12);
-            LookupDie D20 = new LookupDie(20);
-            LookupDie D100 = new LookupDie(100);
+            D4 = new LookupDie(4);
+            D6 = new LookupDie(6);
+            D8 = new LookupDie(8);
+            D10 = new LookupDie(10);
+            D12 = new LookupDie(12);
+            D20 = new LookupDie(20);
+            D100 = new LookupDie(100);
+            D1000 = new LookupDie(1000);
         }
+
+        void SetIterations(int iterations)//reinitializes all dice with the new number of iterations.
+        {
+            D4.ResetIterations(iterations);
+            D6.ResetIterations(iterations);
+            D8.ResetIterations(iterations);
+            D10.ResetIterations(iterations);
+            D12.ResetIterations(iterations);
+            D20.ResetIterations(iterations);
+            D100.ResetIterations(iterations);
+            D1000.ResetIterations(iterations);
+        }
+
+        public int Roll(int ds)
+        {
+            switch (ds)
+            {
+                case 4:
+                    return D4.Roll();
+                case 6:
+                    return D6.Roll();
+                case 8:
+                    return D8.Roll();
+                case 10:
+                    return D10.Roll();
+                case 12:
+                    return D12.Roll();
+                case 20:
+                    return D20.Roll();
+                case 100:
+                    return D100.Roll();
+                case 1000:
+                    return D1000.Roll();
+
+            }
+            return -1;//invalid die size
+        }
+
     }
 
     public class LookupDie
     {
 
         private int _sides = -1;
-        private int _iterations = 5000;//move iterations to roller class
-        private long _rng = 0;
+        private int _iterations = 500;//move iterations to roller class
+        private ulong _rng = 0;
+        private ulong _maxRoll = 0; //used for reducing roll-bias by ensuring equal coverage of the roll table by eliminating the incomplete set at the top of the range.
+        private const ulong _MAXVALUE = 4294967295UL; //max 32bit Value, Used for calculating maxRoll which is used to reduce roll bias. This is hardcoded for 4 bytes.
         private byte[] _cryptoBuffer = new byte[4];//hardcoded 4bytes of entropy
         private List<int> _lookupTable = new List<int>();
         private SortedDictionary<Guid, int> _sortTable = new SortedDictionary<Guid, int>();
         private static RNGCryptoServiceProvider _crypto = new RNGCryptoServiceProvider();
 
-        private long _maxRoll = 0;
+        
 
         public LookupDie(int inputSides)
         {
             _sides = inputSides;
-            _maxRoll = (4294967295L / (_iterations * _sides)) * (_iterations * _sides);//Hardcoded for 4 bytes
+            _setMaxRoll();
             _generateTable();
         }
 
@@ -65,20 +114,45 @@ namespace Rhonin.RNG
         {
             _sortTable.Clear();
             _lookupTable.Clear();
+            _setMaxRoll();
             _generateTable();
+        }
+
+        private void _setMaxRoll()
+        {
+            ulong _maxCount = (uint)(_iterations * _sides);
+            _maxRoll = (_MAXVALUE / _maxCount) * _maxCount;//Hardcoded for 4 bytes
+        }
+
+
+        public void ResetIterations(int _newIterations)//sets iterations and reinializes die
+        {
+            _iterations = _newIterations;
+            Reinitialize();
         }
 
         public int Roll()
         {
+            int _lookupKey = -1;
             Array.Clear(_cryptoBuffer, 0, 4);
             _rng = 0;
             do
             {
                 _crypto.GetBytes(_cryptoBuffer);
-                _rng = BitConverter.ToUInt32(_cryptoBuffer);
+                _rng = BitConverter.ToUInt32(_cryptoBuffer);//using ToUint32 to ensure the proper 4 bytes are set.
             }
             while (_rng > _maxRoll);
-            return _lookupTable[(int)(_rng % _lookupTable.Count)];
+
+            _lookupKey = (int)(_rng % (ulong)_lookupTable.Count);
+
+            if (_lookupKey >= 0 && _lookupKey < _lookupTable.Count)
+            {
+                return _lookupTable[_lookupKey];
+            }
+            else
+            {
+                throw new Exception("Invalid Lookup Key!");
+            }
         }
     }
 }
