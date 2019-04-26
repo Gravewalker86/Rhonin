@@ -26,7 +26,34 @@ namespace Rhonin
         [Command("Testing"), Aliases("test","Test","testing","TEST","TESTING")]
         public async Task Testing(CommandContext ctx)
         {
-            await ctx.RespondAsync($"Reading you loud and clear {ctx.User.Mention}!");
+            await ctx.TriggerTypingAsync();//send client typing to discord.
+
+            int currentRoll = 0;
+            int numberOfDice = 0;
+            int dieSize = 0;
+            int totalRoll = 0;
+            int mod = 0;
+            List<int> rolls = new List<int>();
+
+            string inputString = Regex.Replace(ctx.RawArgumentString, @"[A-CE-Za-ce-z\W]", "");
+            //declared and sanitized in one line.
+            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]\d+)");//checks formatting
+
+            if (!regexMatch.Success)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention}: " +
+                    "Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
+                return;
+            }
+
+            Regex regex = new Regex(@"(\d+)[Dd](\d+)([+-]\d)*");
+            MatchCollection matches = regex.Matches(inputString);
+
+            foreach(Match match in matches)
+            {
+
+            }
+
         }
 
         [Command("roll"), Aliases("Roll", "ROLL", "R", "r")]
@@ -39,21 +66,24 @@ namespace Rhonin
             int dieSize = 0;
             int totalRoll = 0;
             int mod = 0;
-
-            string inputString = ctx.RawArgumentString;
             List<int> rolls = new List<int>();
 
-            inputString = Regex.Replace(inputString, @"[A-CE-Za-ce-z\W]", "");//sanitizes formatting
-            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+)");//checks formatting
-            // 15d4+10 2d8 
-            //Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+\+*\d*)");
+            string inputString = Regex.Replace(ctx.RawArgumentString, @"[A-CE-Za-ce-z\W]", "");
+            //declared and sanitized in one line.
+            Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]\d+)");//checks formatting
 
             if (!regexMatch.Success)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention}: "+
+                await ctx.RespondAsync($"{ctx.User.Mention}: " +
                     "Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
                 return;
             }
+
+            Regex regex = new Regex(@"(\d+)[Dd](\d+)([+-]\d)*");
+            MatchCollection matches = regex.Matches(inputString);
+
+            // 15d4+10 2d8 
+            //Match regexMatch = Regex.Match(inputString, @"(\d+[Dd]+\d+\+*\d*)");
 
             //this line should be unnessecary as you just did a match on line 47
             //regexMatch = Regex.Match(inputString, @"(\d+)[Dd]+(\d+)");
