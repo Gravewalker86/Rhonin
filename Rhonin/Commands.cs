@@ -30,7 +30,7 @@ namespace Rhonin
         {
             await ctx.TriggerTypingAsync();//send client typing to discord.
             const string SANITIZE = @"[A-CE-Za-ce-z\W]";
-            const string VALIDATION = @"(d+[Dd]\d+)";
+            const string VALIDATION = @"(\d+[Dd]\d+)";
             const string PARSE = @"(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+)(?<MODIFIER>[+-]\d)*";
             /*can move validation into parse and utilize a single regex search for validation
             //  and pulling information.
@@ -54,6 +54,7 @@ namespace Rhonin
             {
                 await ctx.RespondAsync($"{ctx.User.Mention}: " +
                     "Please use correct formatting: ##d##. Examples, 1d20, 2d100, 12d8");
+                Console.WriteLine("regex validation fail");
                 return;
             }
 
