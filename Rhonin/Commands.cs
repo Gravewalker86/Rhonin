@@ -29,9 +29,9 @@ namespace Rhonin
         public async Task Testing(CommandContext ctx)
         {
             await ctx.TriggerTypingAsync();//send client typing to discord.
-            const string SANITIZE = @"[A-CE-Za-ce-z\W]";
+            const string SANITIZE = @"[^\dDd+-]";//simplified.
             const string VALIDATION = @"(\d+[Dd]\d+)";
-            const string PARSE = @"(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+)(?<MODIFIER>[+-]\d)*";
+            const string PARSE = @"(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+)(?<MODIFIER>[+-]\d+)*";
             /*can move validation into parse and utilize a single regex search for validation
             //  and pulling information.
             //  @"(?<VALIDATION>(?<NUMDICE>\d+)[Dd](?<DIESIZE>\d+))(?<MODIFIER>[+-]\d)*";
@@ -69,21 +69,11 @@ namespace Rhonin
             dieSize = Convert.ToInt32(regexMatch.Groups["DIESIZE"].Captures[0].Value);
 
             foreach (Capture capture in regexMatch.Groups["MODIFIER"].Captures)
-            {
                 modifiers.Add(capture.Value);
-            }
 
             foreach (string modifier in modifiers)
-            {
-                int sign = 1;
+                totalMod += Convert.ToInt32(modifier);
 
-                if (modifier[0] == '-')
-                    sign = -1;
-
-                modifier.Remove(0, 1);
-
-                totalMod += (Convert.ToInt32(modifier) * sign);
-            }
 
             currentRoll = DiceRoller.Roll(dieSize);
             if (currentRoll == -1)
@@ -105,7 +95,7 @@ namespace Rhonin
 
             //modified the output string to contain the modifier text
             string outputString = new string($"{ctx.User.Username} Rolled {numberOfDice}D{dieSize} :[" +
-                $"{string.Join(", ", rolls)}] + " + totalMod + "= {totalRoll}");
+                $"{string.Join(", ", rolls)}] + " + totalMod + $" = {totalRoll + totalMod}");
 
             if (outputString.Length <= 1990)
             {
