@@ -25,8 +25,8 @@ namespace Rhonin.CommandLogic
         readonly string _rawCommand;
         readonly string _user;
 
-        List<int> rolls = new List<int>();
-        List<string> output = new List<string>();
+        List<int> _rolls = new List<int>();
+        List<string> _output = new List<string>();
 
         public CommandDice(string user, string context)
         {
@@ -53,11 +53,17 @@ namespace Rhonin.CommandLogic
             return true;
         }
 
-        public void Roll()
-            {
+        public Roll()
+        {
             SimpleDiceRoller roller = new SimpleDiceRoller();
-
+            int currentRoll = 0;
+            for (int i = 1; i < _diceCount; i++)
+            {
+                currentRoll = roller.Roll(_dieSize);
+                _rolls.Add(currentRoll);
+                _totalRoll += currentRoll;
             }
+        }
 
         public static int CalcMods (Match match)
         {
