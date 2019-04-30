@@ -7,9 +7,9 @@ namespace Rhonin.RNG
 
     public class SimpleDiceRoller
     {
-        private const int _DEFAULT_SIZE = 4;//default bytes of entropy
-        private const int _MAX_SIZE = 10000; //max die size.
-        private const int _MAX_ENTROPHY = 4096;//max bytes of entropy
+        const int _DEFAULT_SIZE = 4;//default bytes of entropy
+        const int _MAX_ENTROPHY = 4096;//max bytes of entropy
+        public static readonly int _MAX_SIZE = 1000; //max die size.
 
         private int _bytesOfEntrophy = _DEFAULT_SIZE;
         private int _previousDieSize = 0;

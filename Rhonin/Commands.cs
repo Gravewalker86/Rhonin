@@ -121,11 +121,21 @@ namespace Rhonin
             {
                 await ctx.RespondAsync($"{ctx.User.Mention} please roll in a valid format:" +
                     $"##D## +/- ##);");
-                return ;
+                return;
             }
-
-            dice.Roll();
-
+            else if (!dice.Good())
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention}, please limit yourself to {dice._MAXDIE} "+
+                    $"and {dice._MAXSIZE}: {dice._MAXDIE}D{dice._MAXSIZE}.");
+                return;
+            }
+            if (!dice.Roll())
+            {
+                await ctx.RespondAsync("Roll Error");
+                return;
+            }
+            //Move all error checking to it's own class
+            await ctx.RespondAsync(dice.GetOutput());
         }
     }
 }

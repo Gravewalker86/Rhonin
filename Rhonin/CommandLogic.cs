@@ -15,6 +15,8 @@ namespace Rhonin.CommandLogic
     {
         private const string _SANITIZE = @"[^d+-\d]";//regex clean input
         private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MOD>[+-]\d+)*";
+        public readonly int _MAXDIE = 500;
+        public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
 
         bool _valid = false;
         bool _sorted = false;
@@ -34,7 +36,6 @@ namespace Rhonin.CommandLogic
             _rawCommand = context;
         }
 
-
         public bool Parse()
         {
             string input = _rawCommand;
@@ -53,7 +54,16 @@ namespace Rhonin.CommandLogic
             return true;
         }
 
-        public Roll()
+        public bool Good()
+        {
+            if (_diceCount < 1 || _diceCount > _MAXDIE || _dieSize < 2 || _dieSize > _MAXSIZE)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool Roll()
         {
             SimpleDiceRoller roller = new SimpleDiceRoller();
             int currentRoll = 0;
@@ -63,6 +73,21 @@ namespace Rhonin.CommandLogic
                 _rolls.Add(currentRoll);
                 _totalRoll += currentRoll;
             }
+            if (currentRoll == -1)
+                return false;
+
+            return true;
+        }
+
+        public string GetOutput()
+        {
+            string output = $"{_user} Rolled: [{string.Join(", ", _rolls)}] + {_totalMod} = {_totalMod + _totalRoll}";
+            if (output.Length > 2000)
+            {
+                Console.WriteLine($"OUTPUT ERROR: {_rawCommand} produced {output.Length} characters, username: {_user} characters");
+                return $"Error, Output is more than 2000 characters: {output.Length}. Try using less dice!";
+            }//re-implement output segmentation and move errors to their own class.
+            return output;
         }
 
         public static int CalcMods (Match match)
