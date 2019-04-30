@@ -9,48 +9,73 @@ using Rhonin;
 using Rhonin.RNG;
 using Rhonin.Utilities;
 
-namespace Rhonin.Commands
+namespace Rhonin.CommandLogic
 {
-    class Dice
+    public class CommandDice
     {
         private const string _SANITIZE = @"[^d+-\d]";//regex clean input
         private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MOD>[+-]\d+)*";
-        //regex parse input.
-     
-        public Match ParseRegex(string input)
+
+        bool _valid = false;
+        bool _sorted = false;
+        int _diceCount = 0;
+        int _dieSize = 0;
+        int _totalMod = 0;
+        int _totalRoll = 0;
+        readonly string _rawCommand;
+        readonly string _user;
+
+        List<int> rolls = new List<int>();
+        List<string> output = new List<string>();
+
+        public CommandDice(string user, string context)
         {
+            _user = user;
+            _rawCommand = context;
+        }
+
+
+        public bool Parse()
+        {
+            string input = _rawCommand;
             input.ToLower();
             Regex.Replace(input, _SANITIZE, "");
-            return Regex.Match(input, _PARSE);
+
+            Match match = Regex.Match(input, _PARSE);
+
+            if (!match.Groups["VALIDATION"].Success)
+                return false;
+
+            _valid = true;
+            _diceCount = Convert.ToInt32(match.Groups["NUMDICE"].Value);
+            _dieSize = Convert.ToInt32(match.Groups["DIESIZE"].Value);
+            _totalMod = CalcMods(match);
+            return true;
         }
 
-        public bool IsValid (Match parse)
-        {
-            return parse.Groups["VALIDATION"].Success;
-        }
+        public void Roll()
+            {
+            SimpleDiceRoller roller = new SimpleDiceRoller();
 
-        public int DiceCount (Match parse)
-        {
-            return Convert.ToInt32(parse.Groups["NUMDICE"].Value);
-        }
+            }
 
-        public int DieSize (Match parse)
+        public static int CalcMods (Match match)
         {
-            return Convert.ToInt32(parse.Groups["DIESIZE"].Value);
-        }
-
-        public int Mods (Match parse)
-        {
-            if (parse.Groups["MOD"].Captures.Count < 1)
+            if (match.Groups["MOD"].Captures.Count < 1)
                 return 0;
 
             int totalMod = 0;
-            foreach (Capture cap in parse.Groups["MOD"].Captures)
+            foreach (Capture cap in match.Groups["MOD"].Captures)
             {
                 totalMod += Convert.ToInt32(cap.Value);
             }
 
             return totalMod;
         }
+    }
+
+    static class Output
+    {
+
     }
 }
