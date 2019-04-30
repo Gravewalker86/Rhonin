@@ -18,8 +18,6 @@ namespace Rhonin.CommandLogic
         public readonly int _MAXDIE = 500;
         public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
 
-        bool _valid = false;
-        bool _sorted = false;
         int _diceCount = 0;
         int _dieSize = 0;
         int _totalMod = 0;
@@ -47,7 +45,6 @@ namespace Rhonin.CommandLogic
             if (!match.Groups["VALIDATION"].Success)
                 return false;
 
-            _valid = true;
             _diceCount = Convert.ToInt32(match.Groups["NUMDICE"].Value);
             _dieSize = Convert.ToInt32(match.Groups["DIESIZE"].Value);
             _totalMod = CalcMods(match);
