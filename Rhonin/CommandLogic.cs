@@ -8,6 +8,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using Rhonin;
 using Rhonin.RNG;
 using Rhonin.Utilities;
+using System.Text;
 
 namespace Rhonin.CommandLogic
 {
@@ -15,7 +16,6 @@ namespace Rhonin.CommandLogic
     {
         private const string _SANITIZE = @"[^\dDd+-]";//regex clean input
         private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MODS>[+-]\d+)*";
-        //private const string _MODS = @"(?<MOD>[+-]\d+)";
         public readonly int _MAXDIE = 500;
         public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
 
@@ -23,11 +23,12 @@ namespace Rhonin.CommandLogic
         int _dieSize = 0;
         int _totalMod = 0;
         int _totalRoll = 0;
+        string _input = null;
+       
         readonly string _rawCommand;
         readonly string _user;
 
         List<int> _rolls = new List<int>();
-        List<string> _output = new List<string>();
 
         public CommandDice(string user, string context)
         {
@@ -37,16 +38,19 @@ namespace Rhonin.CommandLogic
 
         public bool Parse()
         {
-            string input = _rawCommand.ToLower();
-            input = Regex.Replace(input, _SANITIZE, "");//LINE FIXED!
-            Match match = Regex.Match(input, _PARSE);
+            _input = _rawCommand.ToLower();
+            _input = Regex.Replace(_input, _SANITIZE, "");//LINE FIXED!
+            Match match = Regex.Match(_input, _PARSE);
 
             if (!match.Groups["VALIDATION"].Success)
                 return false;
 
             _diceCount = Convert.ToInt32(match.Groups["NUMDICE"].Value);
             _dieSize = Convert.ToInt32(match.Groups["DIESIZE"].Value);
-            _totalMod = CalcMods(match);
+
+            if (match.Groups["MODS"].Captures.Count >= 1)
+                _totalMod = CalcMods(match);
+
             return true;
         }
 
@@ -63,7 +67,7 @@ namespace Rhonin.CommandLogic
         {
             SimpleDiceRoller roller = new SimpleDiceRoller();
             int currentRoll = 0;
-            for (int i = 1; i < _diceCount; i++)
+            for (int i = 0; i < _diceCount; i++)
             {
                 currentRoll = roller.Roll(_dieSize);
                 _rolls.Add(currentRoll);
@@ -77,7 +81,17 @@ namespace Rhonin.CommandLogic
 
         public string GetOutput()
         {
-            string output = $"{_user} Rolled: [{string.Join(", ", _rolls)}] + {_totalMod} = {_totalMod + _totalRoll}";
+            string output = $"{_user} Rolled \"{_input}\": [{string.Join(", ", _rolls)}] ";
+            if(!(_totalMod == 0))
+            {
+                if (_totalMod > 0)
+                    output += $"+ {_totalMod} ";
+                else
+                    output += $"- { -_totalMod} ";
+            }
+
+            output += $"= {_totalMod + _totalRoll}";
+
             if (output.Length > 2000)
             {
                 Console.WriteLine($"OUTPUT ERROR: {_rawCommand} produced {output.Length} characters, username: {_user} characters");
@@ -93,16 +107,13 @@ namespace Rhonin.CommandLogic
 
             int totalMod = 0;
             foreach (Capture cap in match.Groups["MODS"].Captures)
-            {
-                Console.WriteLine(cap.Value);
                 totalMod += Convert.ToInt32(cap.Value);
-            }
-            
+                        
             return totalMod;
         }
     }
 
-    static class Output
+    static class Output//for segmenting output.
     {
 
     }
