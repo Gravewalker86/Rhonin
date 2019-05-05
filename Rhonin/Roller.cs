@@ -52,7 +52,8 @@ namespace Rhonin.RNG
             {
                 _bytesOfEntrophy = _DEFAULT_SIZE;
             }
-            Array.Resize(ref _byteArray, _bytesOfEntrophy + 1);//extra byte used to ensure positive BigInts.
+            Array.Resize(ref _byteArray, _bytesOfEntrophy + 1);
+            //extra byte used to ensure positive BigInts.
             _previousDieSize = -1;
             //eliminates the need to store and check for _bytesOfEntrophy changes between rolls.
         }

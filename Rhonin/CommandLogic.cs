@@ -19,15 +19,14 @@ namespace Rhonin.CommandLogic
         public readonly int _MAXDIE = 500;
         public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
 
+        readonly string _rawCommand;
+        readonly string _user;
+
         int _diceCount = 0;
         int _dieSize = 0;
         int _totalMod = 0;
         int _totalRoll = 0;
         string _input = null;
-       
-        readonly string _rawCommand;
-        readonly string _user;
-
         List<int> _rolls = new List<int>();
 
         public CommandDice(string user, string context)
