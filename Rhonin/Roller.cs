@@ -7,8 +7,9 @@ namespace Rhonin.RNG
 
     public class SimpleDiceRoller
     {
-        private const int _DEFAULT_SIZE = 4;//default bytes of entropy
-        public const int _MAX_SIZE = 10000; //max die size.
+        const int _DEFAULT_SIZE = 4;//default bytes of entropy
+        const int _MAX_ENTROPHY = 4096;//max bytes of entropy
+        public static readonly int _MAX_SIZE = 1000; //max die size.
 
         private int _bytesOfEntrophy = _DEFAULT_SIZE;
         private int _previousDieSize = 0;
@@ -36,9 +37,14 @@ namespace Rhonin.RNG
             return _bytesOfEntrophy;
         }
 
+        public int GetMaxEntrophy()
+        {
+            return _MAX_ENTROPHY;
+        }
+
         public void SetEntrophy(int bytes)
         {
-            if (bytes > 0 && bytes <= 4096)
+            if (bytes > 0 && bytes <= _MAX_ENTROPHY)
             {
                 _bytesOfEntrophy = bytes;
             }
@@ -46,7 +52,8 @@ namespace Rhonin.RNG
             {
                 _bytesOfEntrophy = _DEFAULT_SIZE;
             }
-            Array.Resize(ref _byteArray, _bytesOfEntrophy + 1);//extra byte used to ensure positive BigInts.
+            Array.Resize(ref _byteArray, _bytesOfEntrophy + 1);
+            //extra byte used to ensure positive BigInts.
             _previousDieSize = -1;
             //eliminates the need to store and check for _bytesOfEntrophy changes between rolls.
         }
@@ -55,7 +62,7 @@ namespace Rhonin.RNG
         {
             byte[] _maxArray = new byte[_bytesOfEntrophy + 1];
 
-            for (int i = 0; i < _maxArray.Length; i++)//fills all but last byte with 0xFF.
+            for (int i = 0; i < _maxArray.Length; i++)//fills all but last byte with 0xFF for max BigInt Value.
             {
                 _maxArray[i] = 0xFF;
             }
@@ -67,10 +74,8 @@ namespace Rhonin.RNG
 
         public int Roll(int size)
         {
-            if(size < 2 && size > 10000)
-            {
-                return -1;
-            } //input validation.
+            if(size < 2 && size > _MAX_SIZE)
+                return -1; //input validation.
 
             BigInteger _roll;
 

@@ -42,7 +42,9 @@ namespace Rhonin.Utilities//Utility classes to make testing / common tasks easie
 
         public string TimeInMilisecondsToString()
         {
-            return ($"{_timer.Elapsed.Milliseconds} Milliseconds, {(_timer.Elapsed.TotalMilliseconds - _timer.Elapsed.Milliseconds) * 1000000} Nanoseconds.");
+            return ($"{_timer.Elapsed.Milliseconds} Milliseconds, "+
+                $"{(_timer.Elapsed.TotalMilliseconds - _timer.Elapsed.Milliseconds) * 1000000} "+
+                "Nanoseconds.");
         }
         
     }

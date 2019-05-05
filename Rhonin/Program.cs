@@ -27,7 +27,6 @@ namespace Rhonin
                 }
                 Console.WriteLine("Authentication Token written to file");
             }
-
             else
             {
                 using (StreamReader inFile = new StreamReader(keyName))
@@ -35,7 +34,6 @@ namespace Rhonin
                     authenticationKey = inFile.ReadLine();
                 }
             }
-
             return authenticationKey;
         }
 
@@ -62,7 +60,8 @@ namespace Rhonin
 
         static void Main(string[] args)
         {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();//starts async task for maintaining the bot.
+            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+            //starts async task for maintaining the bot.
         }
 
         static async Task MainAsync(string[] args)//Main Program Loop
@@ -71,6 +70,5 @@ namespace Rhonin
             await discord.ConnectAsync();
             await Task.Delay(-1);//Keeps bot alive.
         }
-
     }
 }
