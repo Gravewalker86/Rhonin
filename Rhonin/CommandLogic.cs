@@ -13,8 +13,9 @@ namespace Rhonin.CommandLogic
 {
     public class CommandDice
     {
-        private const string _SANITIZE = @"[^\dd+-]";//regex clean input
-        private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MOD>[+-]\d+)*";
+        private const string _SANITIZE = @"[^\dDd+-]";//regex clean input
+        private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MODS>[+-]\d+)*";
+        //private const string _MODS = @"(?<MOD>[+-]\d+)";
         public readonly int _MAXDIE = 500;
         public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
 
@@ -37,8 +38,7 @@ namespace Rhonin.CommandLogic
         public bool Parse()
         {
             string input = _rawCommand.ToLower();
-            Regex.Replace(input, _SANITIZE, "");//LINE FIXED!
-            //Console.WriteLine(input);
+            input = Regex.Replace(input, _SANITIZE, "");//LINE FIXED!
             Match match = Regex.Match(input, _PARSE);
 
             if (!match.Groups["VALIDATION"].Success)
@@ -86,17 +86,18 @@ namespace Rhonin.CommandLogic
             return output;
         }
 
-        public static int CalcMods (Match match)
+        public static int CalcMods(Match match)
         {
-            if (match.Groups["MOD"].Captures.Count < 1)
+            if (match.Groups["MODS"].Captures.Count < 1)
                 return 0;
 
             int totalMod = 0;
-            foreach (Capture cap in match.Groups["MOD"].Captures)
+            foreach (Capture cap in match.Groups["MODS"].Captures)
             {
+                Console.WriteLine(cap.Value);
                 totalMod += Convert.ToInt32(cap.Value);
             }
-
+            
             return totalMod;
         }
     }
