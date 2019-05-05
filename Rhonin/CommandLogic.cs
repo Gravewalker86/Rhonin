@@ -13,7 +13,7 @@ namespace Rhonin.CommandLogic
 {
     public class CommandDice
     {
-        private const string _SANITIZE = @"[^d+-\d]";//regex clean input
+        private const string _SANITIZE = @"[^d+D-\d]";//regex clean input
         private const string _PARSE = @"(?<VALIDATION>(?<NUMDICE>\d+)d(?<DIESIZE>\d+))(?<MOD>[+-]\d+)*";
         public readonly int _MAXDIE = 500;
         public readonly int _MAXSIZE = SimpleDiceRoller._MAX_SIZE;
@@ -36,11 +36,12 @@ namespace Rhonin.CommandLogic
 
         public bool Parse()
         {
-            string input = _rawCommand;
-            input.ToLower();
-            Regex.Replace(input, _SANITIZE, "");
-
-            Match match = Regex.Match(input, _PARSE);
+            //string input = _rawCommand;
+            //input.ToLower();
+            //Regex.Replace(input, _SANITIZE, "");//Problem Line
+            //Console.WriteLine(input);
+            string command = Regex.Replace(_rawCommand, _SANITIZE, "");
+            Match match = Regex.Match(_rawCommand, _PARSE);
 
             if (!match.Groups["VALIDATION"].Success)
                 return false;
