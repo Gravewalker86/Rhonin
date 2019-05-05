@@ -80,8 +80,10 @@ namespace Rhonin.CommandLogic
 
         public string GetOutput()
         {
-            string output = $"{_user} rolled \" {_input} \" : [{string.Join(", ", _rolls)}] ";
-            if(!(_totalMod == 0))
+            string output = $"{_user} rolled {_diceCount}D{_dieSize} : " +
+                $"[{string.Join(", ", _rolls)}] ";
+
+            if (!(_totalMod == 0))
             {
                 if (_totalMod > 0)
                     output += $"+ {_totalMod} ";
